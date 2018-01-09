@@ -1,0 +1,28 @@
+node {
+   def mvnHome
+   stage('Preparation') { // for display purposes
+      // Get some code from a GitHub repository
+      git 'https://github.com/virajingale86/easy-notes-server-registery.git'
+      // Get the Maven tool.
+      // ** NOTE: This 'M3' Maven tool must be configured
+      // **       in the global configuration.           
+      mvnHome = tool 'M3'
+   }
+   stage('Build') {
+      // Run the maven build
+      if (isUnix()) {
+         sh "'${mvnHome}/bin/mvn' clean package"
+      } else {
+         bat(/"${mvnHome}\bin\mvn" clean package/)
+      }
+   }
+   stage ('Docker Build') {
+        // we give the image the same version as the .war package
+        docker.build("virajingale/myimage")
+        sh """docker run -d -p 1111:1111 virajingale/myimage"""
+     //sh """
+	//	docker info
+	//	docker images
+	//	"""
+    }
+}
